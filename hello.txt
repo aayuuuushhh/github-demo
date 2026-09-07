@@ -7,7 +7,3 @@ Hi
 Myself Aayush Shah Shah 
 Sunway College Kathmandu
 Maitidevi
-
-I am learning Git
-Git is a version control system
-this line should not have been committed
