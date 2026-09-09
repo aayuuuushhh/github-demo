@@ -1,0 +1,817 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stillness In Motion</title>
+
+    <style>
+      :root {
+        --blue-black: #030713;
+        --mist: #aabbd8;
+        --white: #eef4ff;
+        --gold: #e8d49d;
+        --px: 0;
+        --py: 0;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      html,
+      body {
+        width: 100%;
+        min-height: 100%;
+        margin: 0;
+      }
+
+      body {
+        overflow: hidden;
+        background: var(--blue-black);
+        color: var(--white);
+        font-family: Georgia, "Times New Roman", serif;
+      }
+
+      button {
+        font: inherit;
+      }
+
+      .scene {
+        position: relative;
+        min-height: 100svh;
+        overflow: hidden;
+        isolation: isolate;
+        background:
+          radial-gradient(
+            circle at 24% 28%,
+            rgba(57, 108, 172, 0.28),
+            transparent 28%
+          ),
+          radial-gradient(
+            circle at 78% 18%,
+            rgba(84, 111, 175, 0.25),
+            transparent 22%
+          ),
+          #030713;
+      }
+
+      #space {
+        position: absolute;
+        inset: 0;
+        z-index: 2;
+        width: 100%;
+        height: 100%;
+        pointer-events: none;
+      }
+
+      .portrait-layer {
+        position: absolute;
+        z-index: 1;
+        inset: -4%;
+        transform: translate3d(calc(var(--px) * 1px), calc(var(--py) * 1px), 0);
+        will-change: transform;
+      }
+
+      .portrait-layer img {
+        width: 100%;
+        height: 100%;
+        display: block;
+        object-fit: cover;
+        object-position: center center;
+        filter: brightness(0.75) contrast(1.12) saturate(0.82) sepia(0.08);
+        animation: imageBreath 12s ease-in-out infinite alternate;
+      }
+
+      .vignette {
+        position: absolute;
+        z-index: 3;
+        inset: 0;
+        pointer-events: none;
+        background:
+          linear-gradient(
+            90deg,
+            rgba(1, 5, 16, 0.96) 0%,
+            rgba(1, 5, 16, 0.68) 23%,
+            rgba(1, 5, 16, 0.16) 58%,
+            rgba(1, 5, 16, 0.4) 100%
+          ),
+          linear-gradient(
+            0deg,
+            rgba(1, 4, 14, 0.9) 0%,
+            transparent 35%,
+            rgba(1, 5, 14, 0.15) 100%
+          );
+      }
+
+      .vignette::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        opacity: 0.14;
+        mix-blend-mode: screen;
+        background-image: radial-gradient(
+          rgba(255, 255, 255, 0.36) 0.6px,
+          transparent 0.7px
+        );
+        background-size: 4px 4px;
+        animation: grain 0.25s steps(2) infinite;
+      }
+
+      .nebula {
+        position: absolute;
+        z-index: 4;
+        width: 42vw;
+        height: 24vw;
+        border-radius: 50%;
+        pointer-events: none;
+        filter: blur(55px);
+        opacity: 0.28;
+        mix-blend-mode: screen;
+        will-change: transform;
+      }
+
+      .nebula-a {
+        top: 9%;
+        left: -12%;
+        background: #326799;
+        animation: nebulaFloatA 18s ease-in-out infinite alternate;
+      }
+
+      .nebula-b {
+        right: -15%;
+        bottom: 4%;
+        background: #536d9d;
+        opacity: 0.2;
+        animation: nebulaFloatB 22s ease-in-out infinite alternate;
+      }
+
+      .nebula-c {
+        top: -10%;
+        right: 20%;
+        width: 28vw;
+        height: 16vw;
+        background: #798cc2;
+        opacity: 0.13;
+        filter: blur(42px);
+        animation: nebulaFloatC 15s ease-in-out infinite alternate;
+      }
+
+      .moon {
+        position: absolute;
+        z-index: 5;
+        top: 11%;
+        right: 13%;
+        width: clamp(46px, 6vw, 82px);
+        aspect-ratio: 1;
+        border-radius: 50%;
+        background: #fff2c7;
+        box-shadow:
+          0 0 18px rgba(255, 239, 184, 0.85),
+          0 0 70px rgba(216, 225, 255, 0.42);
+        transform: translate3d(
+          calc(var(--px) * -0.35px),
+          calc(var(--py) * -0.35px),
+          0
+        );
+        animation: moonFloat 7s ease-in-out infinite;
+      }
+
+      .moon::after {
+        content: "";
+        position: absolute;
+        top: -7%;
+        left: 29%;
+        width: 100%;
+        height: 100%;
+        border-radius: 50%;
+        background: #111a33;
+        box-shadow: inset -8px 1px 10px rgba(255, 255, 255, 0.03);
+      }
+
+      .moon::before {
+        content: "";
+        position: absolute;
+        z-index: -1;
+        inset: -70%;
+        border-radius: 50%;
+        background: radial-gradient(
+          circle,
+          rgba(242, 226, 176, 0.3),
+          transparent 62%
+        );
+        animation: moonPulse 4s ease-in-out infinite;
+      }
+
+      .topbar {
+        position: absolute;
+        z-index: 8;
+        top: 30px;
+        right: 38px;
+        left: 38px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        pointer-events: none;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: rgba(239, 245, 255, 0.86);
+        font-size: 11px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+      }
+
+      .brand-mark {
+        width: 30px;
+        height: 30px;
+        display: grid;
+        place-items: center;
+        border: 1px solid rgba(232, 212, 157, 0.7);
+        border-radius: 50%;
+        color: var(--gold);
+        font-size: 13px;
+        letter-spacing: 0;
+      }
+
+      .topbar-label {
+        color: rgba(222, 232, 250, 0.5);
+        font-size: 10px;
+        letter-spacing: 0.22em;
+        text-transform: uppercase;
+      }
+
+      .copy {
+        position: absolute;
+        z-index: 7;
+        top: 50%;
+        left: clamp(28px, 8vw, 128px);
+        width: min(430px, 42vw);
+        transform: translateY(-42%);
+      }
+
+      .eyebrow {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 0 0 22px;
+        color: var(--gold);
+        font-size: 10px;
+        letter-spacing: 0.3em;
+        text-transform: uppercase;
+        animation: reveal 1.2s 0.15s both;
+      }
+
+      .eyebrow::before {
+        content: "";
+        width: 42px;
+        height: 1px;
+        background: var(--gold);
+        box-shadow: 0 0 10px rgba(232, 212, 157, 0.7);
+      }
+
+      h1 {
+        margin: 0;
+        color: #eff5ff;
+        font-size: clamp(48px, 7vw, 112px);
+        font-weight: 400;
+        line-height: 0.86;
+        letter-spacing: -0.06em;
+        text-shadow: 0 10px 40px rgba(0, 0, 0, 0.38);
+        animation: reveal 1.2s 0.3s both;
+      }
+
+      h1 em {
+        display: block;
+        color: #b9c9e5;
+        font-size: 0.76em;
+        font-style: italic;
+        letter-spacing: -0.07em;
+      }
+
+      .lede {
+        max-width: 300px;
+        margin: 30px 0 0 5px;
+        color: rgba(220, 232, 251, 0.7);
+        font-size: 14px;
+        line-height: 1.8;
+        animation: reveal 1.2s 0.5s both;
+      }
+
+      .control-panel {
+        position: absolute;
+        z-index: 8;
+        right: 38px;
+        bottom: 34px;
+        display: flex;
+        gap: 10px;
+      }
+
+      .control {
+        padding: 10px 14px;
+        border: 1px solid rgba(223, 233, 255, 0.28);
+        border-radius: 999px;
+        color: rgba(239, 245, 255, 0.78);
+        background: rgba(5, 11, 26, 0.32);
+        backdrop-filter: blur(12px);
+        cursor: pointer;
+        font-size: 10px;
+        letter-spacing: 0.16em;
+        text-transform: uppercase;
+        transition:
+          color 180ms ease,
+          border-color 180ms ease,
+          background 180ms ease,
+          transform 180ms ease;
+      }
+
+      .control:hover {
+        color: #ffffff;
+        border-color: rgba(232, 212, 157, 0.8);
+        background: rgba(19, 29, 54, 0.58);
+        transform: translateY(-2px);
+      }
+
+      .scroll-cue {
+        position: absolute;
+        z-index: 8;
+        bottom: 38px;
+        left: 50%;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        color: rgba(224, 234, 251, 0.52);
+        font-size: 9px;
+        letter-spacing: 0.28em;
+        text-transform: uppercase;
+        transform: translateX(-50%);
+      }
+
+      .scroll-cue::before,
+      .scroll-cue::after {
+        content: "";
+        width: 34px;
+        height: 1px;
+        background: rgba(224, 234, 251, 0.34);
+      }
+
+      .ripple {
+        position: absolute;
+        z-index: 9;
+        width: 8px;
+        height: 8px;
+        border: 1px solid rgba(236, 220, 169, 0.8);
+        border-radius: 50%;
+        pointer-events: none;
+        transform: translate(-50%, -50%);
+        animation: ripple 900ms ease-out forwards;
+      }
+
+      .paused *,
+      .paused *::before,
+      .paused *::after {
+        animation-play-state: paused !important;
+      }
+
+      @keyframes imageBreath {
+        from {
+          transform: scale(1.015);
+        }
+        to {
+          transform: scale(1.055);
+        }
+      }
+
+      @keyframes moonFloat {
+        0%,
+        100% {
+          margin-top: 0;
+        }
+
+        50% {
+          margin-top: 9px;
+        }
+      }
+
+      @keyframes moonPulse {
+        0%,
+        100% {
+          transform: scale(0.86);
+          opacity: 0.55;
+        }
+
+        50% {
+          transform: scale(1.08);
+          opacity: 1;
+        }
+      }
+
+      @keyframes nebulaFloatA {
+        from {
+          transform: translate3d(-2vw, 1vh, 0) rotate(-8deg) scale(1);
+        }
+
+        to {
+          transform: translate3d(16vw, 10vh, 0) rotate(11deg) scale(1.3);
+        }
+      }
+
+      @keyframes nebulaFloatB {
+        from {
+          transform: translate3d(4vw, 4vh, 0) rotate(3deg) scale(1);
+        }
+
+        to {
+          transform: translate3d(-14vw, -14vh, 0) rotate(-12deg) scale(1.3);
+        }
+      }
+
+      @keyframes nebulaFloatC {
+        from {
+          transform: translate3d(0, 0, 0) scale(0.8);
+        }
+
+        to {
+          transform: translate3d(-13vw, 12vh, 0) scale(1.35);
+        }
+      }
+
+      @keyframes grain {
+        0% {
+          transform: translate(0, 0);
+        }
+
+        25% {
+          transform: translate(-1%, 1%);
+        }
+
+        50% {
+          transform: translate(1%, -1%);
+        }
+
+        75% {
+          transform: translate(1%, 1%);
+        }
+
+        100% {
+          transform: translate(-1%, -1%);
+        }
+      }
+
+      @keyframes reveal {
+        from {
+          opacity: 0;
+          transform: translateY(24px);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      @keyframes ripple {
+        from {
+          width: 8px;
+          height: 8px;
+          opacity: 0.9;
+        }
+
+        to {
+          width: 180px;
+          height: 180px;
+          opacity: 0;
+        }
+      }
+
+      @media (max-width: 760px) {
+        .topbar {
+          top: 22px;
+          right: 22px;
+          left: 22px;
+        }
+
+        .topbar-label {
+          display: none;
+        }
+
+        .portrait-layer img {
+          object-position: 58% center;
+        }
+
+        .vignette {
+          background:
+            linear-gradient(
+              0deg,
+              rgba(1, 5, 16, 0.97) 0%,
+              rgba(1, 5, 16, 0.48) 38%,
+              rgba(1, 5, 16, 0.1) 74%
+            ),
+            linear-gradient(90deg, rgba(1, 5, 16, 0.55), transparent 80%);
+        }
+
+        .copy {
+          top: auto;
+          right: 24px;
+          bottom: 106px;
+          left: 24px;
+          width: auto;
+          transform: none;
+        }
+
+        h1 {
+          font-size: clamp(52px, 17vw, 96px);
+        }
+
+        .lede {
+          margin-top: 20px;
+          font-size: 13px;
+        }
+
+        .moon {
+          top: 12%;
+          right: 10%;
+        }
+
+        .control-panel {
+          right: 22px;
+          bottom: 25px;
+        }
+
+        .scroll-cue {
+          display: none;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *,
+        *::before,
+        *::after {
+          animation-duration: 0.001ms !important;
+          animation-iteration-count: 1 !important;
+          scroll-behavior: auto !important;
+        }
+      }
+    </style>
+  </head>
+
+  <body>
+    <main class="scene" id="scene">
+      <canvas id="space"></canvas>
+
+      <div class="portrait-layer">
+        <img
+          src="./shiva.jpg"
+          alt="A tranquil blue-toned Shiva statue beneath a crescent moon"
+        />
+      </div>
+
+      <div class="vignette"></div>
+
+      <div class="nebula nebula-a"></div>
+      <div class="nebula nebula-b"></div>
+      <div class="nebula nebula-c"></div>
+
+      <div class="moon" aria-hidden="true"></div>
+
+      <header class="topbar">
+        <div class="brand">
+          <span class="brand-mark">ॐ</span>
+          <span>Mahadeva</span>
+        </div>
+
+        <div class="topbar-label">Cosmic stillness / 001</div>
+      </header>
+
+      <section class="copy">
+        <p class="eyebrow">The silence between stars</p>
+
+        <h1>
+          Stillness
+          <em>in motion.</em>
+        </h1>
+
+        <p class="lede">
+          A living celestial atmosphere inspired by the calm force of the night,
+          the moon, and infinite space.
+        </p>
+      </section>
+
+      <div class="scroll-cue">
+        <span>Move through the silence</span>
+      </div>
+
+      <div class="control-panel">
+        <button class="control" id="motionToggle" type="button">
+          Pause motion
+        </button>
+
+        <button class="control" id="fullscreenToggle" type="button">
+          Fullscreen
+        </button>
+      </div>
+    </main>
+
+    <script>
+      const scene = document.getElementById("scene");
+      const canvas = document.getElementById("space");
+      const ctx = canvas.getContext("2d");
+      const motionToggle = document.getElementById("motionToggle");
+      const fullscreenToggle = document.getElementById("fullscreenToggle");
+
+      let width = 0;
+      let height = 0;
+      let pixelRatio = 1;
+      let stars = [];
+      let meteors = [];
+      let animationFrame = 0;
+      let paused = false;
+
+      const pointer = {
+        x: 0,
+        y: 0,
+        targetX: 0,
+        targetY: 0,
+      };
+
+      function random(min, max) {
+        return Math.random() * (max - min) + min;
+      }
+
+      function createStar() {
+        return {
+          x: random(0, width),
+          y: random(0, height * 0.76),
+          radius: random(0.35, 1.65),
+          alpha: random(0.25, 0.95),
+          phase: random(0, Math.PI * 2),
+          twinkle: random(0.8, 2.4),
+          depth: random(0.15, 1),
+        };
+      }
+
+      function createMeteor(initial = false) {
+        return {
+          x: initial ? random(0, width) : random(-width * 0.2, -40),
+          y: random(0, height * 0.4),
+          length: random(55, 135),
+          speed: random(5, 10),
+          opacity: random(0.25, 0.8),
+          delay: initial ? random(0, 220) : 0,
+        };
+      }
+
+      function resizeCanvas() {
+        width = window.innerWidth;
+        height = window.innerHeight;
+        pixelRatio = Math.min(window.devicePixelRatio || 1, 2);
+
+        canvas.width = Math.floor(width * pixelRatio);
+        canvas.height = Math.floor(height * pixelRatio);
+        canvas.style.width = `${width}px`;
+        canvas.style.height = `${height}px`;
+
+        ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
+
+        const starCount = Math.min(
+          560,
+          Math.max(170, Math.floor((width * height) / 8000)),
+        );
+
+        stars = Array.from({ length: starCount }, createStar);
+        meteors = Array.from({ length: 4 }, () => createMeteor(true));
+      }
+
+      function drawStars(time) {
+        ctx.clearRect(0, 0, width, height);
+
+        for (const star of stars) {
+          const driftX = pointer.x * star.depth * 14;
+          const driftY = pointer.y * star.depth * 8;
+          const x = (star.x + driftX + width) % width;
+          const y = (star.y + driftY + height) % height;
+          const pulse =
+            0.6 + Math.sin(time * 0.001 * star.twinkle + star.phase) * 0.4;
+          const alpha = Math.max(0.05, star.alpha * pulse);
+
+          ctx.beginPath();
+          ctx.fillStyle = `rgba(202, 222, 255, ${alpha})`;
+          ctx.arc(x, y, star.radius, 0, Math.PI * 2);
+          ctx.fill();
+
+          if (star.radius > 1.2) {
+            ctx.beginPath();
+            ctx.fillStyle = `rgba(177, 206, 255, ${alpha * 0.13})`;
+            ctx.arc(x, y, star.radius * 5, 0, Math.PI * 2);
+            ctx.fill();
+          }
+        }
+
+        ctx.save();
+        ctx.globalCompositeOperation = "lighter";
+
+        for (const meteor of meteors) {
+          if (meteor.delay > 0) {
+            meteor.delay -= 1;
+            continue;
+          }
+
+          const gradient = ctx.createLinearGradient(
+            meteor.x,
+            meteor.y,
+            meteor.x - meteor.length,
+            meteor.y - meteor.length * 0.35,
+          );
+
+          gradient.addColorStop(0, `rgba(255, 247, 207, ${meteor.opacity})`);
+          gradient.addColorStop(1, "rgba(255, 247, 207, 0)");
+
+          ctx.beginPath();
+          ctx.strokeStyle = gradient;
+          ctx.lineWidth = 1.2;
+          ctx.moveTo(meteor.x, meteor.y);
+          ctx.lineTo(meteor.x - meteor.length, meteor.y - meteor.length * 0.35);
+          ctx.stroke();
+
+          meteor.x += meteor.speed;
+          meteor.y += meteor.speed * 0.35;
+
+          if (meteor.x > width + meteor.length || meteor.y > height * 0.8) {
+            Object.assign(meteor, createMeteor(false));
+          }
+        }
+
+        ctx.restore();
+      }
+
+      function animate(time) {
+        if (!paused) {
+          pointer.x += (pointer.targetX - pointer.x) * 0.035;
+          pointer.y += (pointer.targetY - pointer.y) * 0.035;
+
+          scene.style.setProperty("--px", (pointer.x * 18).toFixed(2));
+          scene.style.setProperty("--py", (pointer.y * 12).toFixed(2));
+        }
+
+        drawStars(time);
+        animationFrame = requestAnimationFrame(animate);
+      }
+
+      function setPointerPosition(event) {
+        pointer.targetX = event.clientX / window.innerWidth - 0.5;
+        pointer.targetY = event.clientY / window.innerHeight - 0.5;
+      }
+
+      window.addEventListener("resize", resizeCanvas);
+      window.addEventListener("pointermove", setPointerPosition);
+
+      window.addEventListener("pointerleave", () => {
+        pointer.targetX = 0;
+        pointer.targetY = 0;
+      });
+
+      scene.addEventListener("pointerdown", (event) => {
+        const ripple = document.createElement("span");
+        ripple.className = "ripple";
+        ripple.style.left = `${event.clientX}px`;
+        ripple.style.top = `${event.clientY}px`;
+        scene.appendChild(ripple);
+
+        ripple.addEventListener("animationend", () => {
+          ripple.remove();
+        });
+      });
+
+      motionToggle.addEventListener("click", () => {
+        paused = !paused;
+        scene.classList.toggle("paused", paused);
+        motionToggle.textContent = paused ? "Resume motion" : "Pause motion";
+        motionToggle.setAttribute("aria-pressed", String(paused));
+      });
+
+      fullscreenToggle.addEventListener("click", async () => {
+        if (!document.fullscreenElement) {
+          await document.documentElement.requestFullscreen?.();
+          fullscreenToggle.textContent = "Exit fullscreen";
+        } else {
+          await document.exitFullscreen?.();
+          fullscreenToggle.textContent = "Fullscreen";
+        }
+      });
+
+      document.addEventListener("fullscreenchange", () => {
+        fullscreenToggle.textContent = document.fullscreenElement
+          ? "Exit fullscreen"
+          : "Fullscreen";
+      });
+
+      resizeCanvas();
+      animationFrame = requestAnimationFrame(animate);
+    </script>
+  </body>
+</html>
+
+<img src="./shiva.jpg" ... />
