@@ -1,0 +1,1830 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Grid Rival</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&family=Space+Mono:wght@400;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --ink: #111713;
+        --paper: #f4f0e8;
+        --muted: #a9b2a7;
+        --panel: #1b241d;
+        --panel-light: #243027;
+        --line: rgba(244, 240, 232, 0.14);
+        --lime: #d9ff72;
+        --coral: #ff8068;
+        --cyan: #72e5dc;
+        --yellow: #f5cf5d;
+        --shadow: rgba(0, 0, 0, 0.22);
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        min-width: 320px;
+        min-height: 100vh;
+        margin: 0;
+        color: var(--paper);
+        background:
+          radial-gradient(
+            circle at 15% 10%,
+            rgba(217, 255, 114, 0.13),
+            transparent 28rem
+          ),
+          radial-gradient(
+            circle at 90% 80%,
+            rgba(114, 229, 220, 0.1),
+            transparent 30rem
+          ),
+          var(--ink);
+        font-family: "Bricolage Grotesque", sans-serif;
+      }
+
+      body::before {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
+        pointer-events: none;
+        content: "";
+        opacity: 0.07;
+        background-image:
+          linear-gradient(rgba(255, 255, 255, 0.25) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(255, 255, 255, 0.25) 1px, transparent 1px);
+        background-size: 36px 36px;
+        mask-image: linear-gradient(to bottom, black, transparent 85%);
+      }
+
+      button,
+      select {
+        font: inherit;
+      }
+
+      button {
+        cursor: pointer;
+      }
+
+      .app-shell {
+        width: min(1240px, calc(100% - 32px));
+        margin: 0 auto;
+        padding: 34px 0 48px;
+      }
+
+      .topbar {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 24px;
+        margin-bottom: 36px;
+      }
+
+      .brand {
+        display: flex;
+        align-items: center;
+        gap: 13px;
+      }
+
+      .brand-mark {
+        display: grid;
+        width: 44px;
+        height: 44px;
+        color: var(--ink);
+        background: var(--lime);
+        border-radius: 13px;
+        place-items: center;
+        font-family: "Space Mono", monospace;
+        font-size: 17px;
+        font-weight: 700;
+        transform: rotate(-6deg);
+        box-shadow: 6px 6px 0 rgba(217, 255, 114, 0.14);
+      }
+
+      .brand-name {
+        margin: 0;
+        font-size: 1.08rem;
+        font-weight: 800;
+        letter-spacing: -0.03em;
+      }
+
+      .brand-note {
+        margin: 3px 0 0;
+        color: var(--muted);
+        font-family: "Space Mono", monospace;
+        font-size: 0.66rem;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .eyebrow {
+        margin: 0 0 12px;
+        color: var(--lime);
+        font-family: "Space Mono", monospace;
+        font-size: 0.72rem;
+        letter-spacing: 0.13em;
+        text-transform: uppercase;
+      }
+
+      .hero {
+        max-width: 730px;
+        margin-bottom: 28px;
+      }
+
+      .hero h1 {
+        max-width: 760px;
+        margin: 0;
+        font-size: clamp(3.3rem, 8vw, 7.4rem);
+        font-weight: 800;
+        line-height: 0.86;
+        letter-spacing: -0.085em;
+      }
+
+      .hero h1 span {
+        color: var(--coral);
+      }
+
+      .hero-copy {
+        max-width: 560px;
+        margin: 22px 0 0;
+        color: var(--muted);
+        font-size: 1.03rem;
+        line-height: 1.55;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 305px minmax(0, 1fr);
+        gap: 18px;
+        align-items: stretch;
+      }
+
+      .panel,
+      .arena {
+        border: 1px solid var(--line);
+        background: rgba(27, 36, 29, 0.88);
+        box-shadow: 16px 18px 0 var(--shadow);
+        backdrop-filter: blur(12px);
+      }
+
+      .panel {
+        padding: 22px;
+        border-radius: 24px;
+      }
+
+      .panel-heading {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin-bottom: 22px;
+      }
+
+      .panel-heading h2 {
+        margin: 0;
+        font-size: 1.15rem;
+        letter-spacing: -0.04em;
+      }
+
+      .panel-number {
+        color: var(--lime);
+        font-family: "Space Mono", monospace;
+        font-size: 0.72rem;
+      }
+
+      .control-group {
+        margin-bottom: 24px;
+      }
+
+      .control-label {
+        display: block;
+        margin-bottom: 9px;
+        color: var(--muted);
+        font-family: "Space Mono", monospace;
+        font-size: 0.68rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .choice-list {
+        display: grid;
+        gap: 8px;
+      }
+
+      .choice {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        width: 100%;
+        padding: 13px 14px;
+        color: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        background: transparent;
+        text-align: left;
+        transition:
+          border-color 160ms ease,
+          background 160ms ease,
+          transform 160ms ease;
+      }
+
+      .choice:hover {
+        border-color: rgba(217, 255, 114, 0.55);
+        transform: translateX(3px);
+      }
+
+      .choice.active {
+        color: var(--ink);
+        border-color: var(--lime);
+        background: var(--lime);
+      }
+
+      .choice-title {
+        display: block;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+      }
+
+      .choice-detail {
+        display: block;
+        margin-top: 2px;
+        color: var(--muted);
+        font-family: "Space Mono", monospace;
+        font-size: 0.62rem;
+      }
+
+      .choice.active .choice-detail {
+        color: rgba(17, 23, 19, 0.66);
+      }
+
+      .choice-icon {
+        font-family: "Space Mono", monospace;
+        font-size: 0.92rem;
+        font-weight: 700;
+      }
+
+      .select-wrap {
+        position: relative;
+      }
+
+      .select-wrap::after {
+        position: absolute;
+        top: 50%;
+        right: 14px;
+        pointer-events: none;
+        content: "↓";
+        color: var(--lime);
+        transform: translateY(-50%);
+      }
+
+      select {
+        width: 100%;
+        padding: 13px 38px 13px 14px;
+        color: var(--paper);
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        outline: none;
+        background: var(--panel-light);
+        appearance: none;
+      }
+
+      select:focus {
+        border-color: var(--lime);
+      }
+
+      .button-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 8px;
+        margin-top: 28px;
+      }
+
+      .action-button {
+        padding: 13px 11px;
+        border: 1px solid transparent;
+        border-radius: 13px;
+        font-weight: 800;
+        letter-spacing: -0.02em;
+        transition:
+          transform 160ms ease,
+          background 160ms ease;
+      }
+
+      .action-button:hover {
+        transform: translateY(-2px);
+      }
+
+      .action-button.primary {
+        color: var(--ink);
+        background: var(--lime);
+      }
+
+      .action-button.secondary {
+        color: var(--paper);
+        border-color: var(--line);
+        background: transparent;
+      }
+
+      .rule {
+        height: 1px;
+        margin: 24px 0;
+        background: var(--line);
+      }
+
+      .scoreboard {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+      }
+
+      .score {
+        padding: 12px 7px;
+        border: 1px solid var(--line);
+        border-radius: 13px;
+        text-align: center;
+      }
+
+      .score-value {
+        display: block;
+        color: var(--lime);
+        font-family: "Space Mono", monospace;
+        font-size: 1.4rem;
+        font-weight: 700;
+      }
+
+      .score-name {
+        display: block;
+        margin-top: 4px;
+        color: var(--muted);
+        font-family: "Space Mono", monospace;
+        font-size: 0.57rem;
+        text-transform: uppercase;
+      }
+
+      .arena {
+        position: relative;
+        display: flex;
+        min-height: 610px;
+        flex-direction: column;
+        overflow: hidden;
+        border-radius: 28px;
+      }
+
+      .arena::after {
+        position: absolute;
+        top: -170px;
+        right: -130px;
+        width: 350px;
+        height: 350px;
+        content: "";
+        border: 1px solid rgba(217, 255, 114, 0.18);
+        border-radius: 50%;
+        box-shadow:
+          0 0 0 28px rgba(217, 255, 114, 0.035),
+          0 0 0 56px rgba(217, 255, 114, 0.025);
+        pointer-events: none;
+      }
+
+      .arena-header {
+        display: flex;
+        align-items: flex-start;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 27px 30px 20px;
+        border-bottom: 1px solid var(--line);
+      }
+
+      .game-name {
+        margin: 0;
+        font-size: clamp(1.8rem, 4vw, 3.3rem);
+        font-weight: 800;
+        line-height: 0.95;
+        letter-spacing: -0.07em;
+      }
+
+      .game-description {
+        max-width: 430px;
+        margin: 10px 0 0;
+        color: var(--muted);
+        line-height: 1.45;
+      }
+
+      .status-box {
+        flex: 0 0 auto;
+        min-width: 155px;
+        padding: 12px 14px;
+        border: 1px solid var(--line);
+        border-radius: 15px;
+        text-align: right;
+      }
+
+      .status-label {
+        display: block;
+        margin-bottom: 6px;
+        color: var(--muted);
+        font-family: "Space Mono", monospace;
+        font-size: 0.62rem;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .status-text {
+        display: block;
+        color: var(--lime);
+        font-family: "Space Mono", monospace;
+        font-size: 0.78rem;
+        font-weight: 700;
+      }
+
+      .game-space {
+        display: grid;
+        flex: 1;
+        place-items: center;
+        padding: 30px;
+      }
+
+      .board {
+        position: relative;
+        z-index: 1;
+        animation: board-in 420ms ease both;
+      }
+
+      .board-ttt {
+        display: grid;
+        width: min(100%, 520px);
+        aspect-ratio: 1;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 10px;
+        padding: 10px;
+        border: 1px solid rgba(217, 255, 114, 0.22);
+        border-radius: 22px;
+        background: rgba(217, 255, 114, 0.08);
+      }
+
+      .board-connect4 {
+        display: grid;
+        width: min(100%, 700px);
+        grid-template-columns: repeat(7, 1fr);
+        gap: clamp(5px, 1vw, 10px);
+        padding: clamp(10px, 2vw, 18px);
+        border: 1px solid rgba(114, 229, 220, 0.28);
+        border-radius: 25px;
+        background: #176b6b;
+        box-shadow:
+          inset 0 0 0 1px rgba(255, 255, 255, 0.08),
+          0 16px 30px rgba(0, 0, 0, 0.17);
+      }
+
+      .cell {
+        position: relative;
+        display: grid;
+        padding: 0;
+        place-items: center;
+        border: 0;
+        outline: none;
+        transition:
+          background 150ms ease,
+          transform 150ms ease,
+          box-shadow 150ms ease;
+      }
+
+      .cell:focus-visible {
+        z-index: 2;
+        box-shadow:
+          0 0 0 4px var(--paper),
+          0 0 0 7px var(--lime);
+      }
+
+      .ttt-cell {
+        min-width: 0;
+        min-height: 0;
+        color: var(--paper);
+        border: 1px solid rgba(244, 240, 232, 0.15);
+        border-radius: 15px;
+        background: #263329;
+        font-family: "Space Mono", monospace;
+        font-size: clamp(2.4rem, 8vw, 5rem);
+        font-weight: 700;
+      }
+
+      .ttt-cell:hover:not(:disabled) {
+        background: #304234;
+        transform: scale(0.97);
+      }
+
+      .ttt-cell.piece-x {
+        color: var(--lime);
+      }
+
+      .ttt-cell.piece-o {
+        color: var(--coral);
+      }
+
+      .c4-cell {
+        aspect-ratio: 1;
+        overflow: hidden;
+        color: var(--ink);
+        border-radius: 50%;
+        background: #092f35;
+        font-family: "Space Mono", monospace;
+        font-size: clamp(0.85rem, 2.8vw, 1.55rem);
+        font-weight: 700;
+        box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.2);
+      }
+
+      .c4-cell:hover:not(:disabled) {
+        background: #0a4047;
+      }
+
+      .c4-cell.piece-x {
+        color: var(--ink);
+        background: var(--lime);
+        box-shadow:
+          inset 0 3px 0 rgba(255, 255, 255, 0.33),
+          0 3px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .c4-cell.piece-o {
+        color: var(--ink);
+        background: var(--coral);
+        box-shadow:
+          inset 0 3px 0 rgba(255, 255, 255, 0.33),
+          0 3px 0 rgba(0, 0, 0, 0.1);
+      }
+
+      .cell.winning {
+        animation: winning-pulse 780ms ease-in-out infinite alternate;
+      }
+
+      .board-connect4 .cell.winning {
+        box-shadow:
+          0 0 0 4px var(--yellow),
+          0 0 22px rgba(245, 207, 93, 0.75);
+      }
+
+      .arena-footer {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 20px;
+        padding: 16px 30px 22px;
+        border-top: 1px solid var(--line);
+      }
+
+      .turn-indicator {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        color: var(--muted);
+        font-family: "Space Mono", monospace;
+        font-size: 0.68rem;
+        text-transform: uppercase;
+      }
+
+      .turn-token {
+        display: grid;
+        width: 30px;
+        height: 30px;
+        color: var(--ink);
+        border-radius: 9px;
+        background: var(--lime);
+        place-items: center;
+        font-size: 0.74rem;
+        font-weight: 700;
+      }
+
+      .hint {
+        margin: 0;
+        color: var(--muted);
+        font-family: "Space Mono", monospace;
+        font-size: 0.62rem;
+        text-align: right;
+      }
+
+      [hidden] {
+        display: none !important;
+      }
+
+      @keyframes board-in {
+        from {
+          opacity: 0;
+          transform: translateY(14px) scale(0.98);
+        }
+
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      @keyframes winning-pulse {
+        from {
+          transform: scale(1);
+        }
+
+        to {
+          transform: scale(0.94);
+        }
+      }
+
+      @media (max-width: 850px) {
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .panel {
+          order: 2;
+        }
+
+        .arena {
+          min-height: 590px;
+        }
+
+        .panel {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 18px;
+        }
+
+        .panel-heading,
+        .button-row,
+        .rule,
+        .scoreboard {
+          grid-column: 1 / -1;
+        }
+
+        .control-group {
+          margin: 0;
+        }
+
+        .button-row {
+          margin-top: 0;
+        }
+
+        .rule {
+          margin: 0;
+        }
+      }
+
+      @media (max-width: 580px) {
+        .app-shell {
+          width: min(100% - 20px, 520px);
+          padding-top: 20px;
+        }
+
+        .topbar {
+          margin-bottom: 28px;
+        }
+
+        .hero h1 {
+          font-size: clamp(3rem, 18vw, 5rem);
+        }
+
+        .hero-copy {
+          font-size: 0.92rem;
+        }
+
+        .arena-header {
+          display: block;
+          padding: 23px 20px 18px;
+        }
+
+        .status-box {
+          min-width: 0;
+          margin-top: 18px;
+          text-align: left;
+        }
+
+        .game-space {
+          padding: 20px 12px;
+        }
+
+        .arena-footer {
+          display: block;
+          padding: 15px 20px 19px;
+        }
+
+        .hint {
+          margin-top: 13px;
+          text-align: left;
+        }
+
+        .panel {
+          display: block;
+          padding: 18px;
+        }
+
+        .panel-heading,
+        .control-group,
+        .rule,
+        .button-row {
+          margin-bottom: 20px;
+        }
+
+        .rule {
+          margin-top: 22px;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <main class="app-shell">
+      <header class="topbar">
+        <div class="brand">
+          <div class="brand-mark">GR</div>
+          <div>
+            <p class="brand-name">Grid Rival</p>
+            <p class="brand-note">small games / serious rematches</p>
+          </div>
+        </div>
+      </header>
+
+      <section class="hero">
+        <p class="eyebrow">Choose your arena</p>
+        <h1>Play <span>sharp.</span><br />Think sharper.</h1>
+        <p class="hero-copy">
+          Challenge the computer or sit across from another human. Pick a game,
+          choose your rules, and make the next move count.
+        </p>
+      </section>
+
+      <section class="layout">
+        <aside class="panel">
+          <div class="panel-heading">
+            <h2>Match setup</h2>
+            <span class="panel-number">01 / 04</span>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Game</label>
+
+            <div class="choice-list" role="group" aria-label="Choose a game">
+              <button
+                class="choice active"
+                type="button"
+                data-game="ttt"
+                aria-pressed="true"
+              >
+                <span>
+                  <span class="choice-title">Tic-Tac-Toe</span>
+                  <span class="choice-detail">classic 3 x 3</span>
+                </span>
+                <span class="choice-icon">3x3</span>
+              </button>
+
+              <button
+                class="choice"
+                type="button"
+                data-game="connect4"
+                aria-pressed="false"
+              >
+                <span>
+                  <span class="choice-title">Connect Four</span>
+                  <span class="choice-detail">vertical strategy</span>
+                </span>
+                <span class="choice-icon">4+</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="control-group">
+            <label class="control-label">Players</label>
+
+            <div
+              class="choice-list"
+              role="group"
+              aria-label="Choose player mode"
+            >
+              <button
+                class="choice active"
+                type="button"
+                data-mode="ai"
+                aria-pressed="true"
+              >
+                <span>
+                  <span class="choice-title">Human vs AI</span>
+                  <span class="choice-detail">you play as X</span>
+                </span>
+                <span class="choice-icon">AI</span>
+              </button>
+
+              <button
+                class="choice"
+                type="button"
+                data-mode="human"
+                aria-pressed="false"
+              >
+                <span>
+                  <span class="choice-title">Human vs Human</span>
+                  <span class="choice-detail">pass and play</span>
+                </span>
+                <span class="choice-icon">2P</span>
+              </button>
+            </div>
+          </div>
+
+          <div class="control-group" id="ai-level-group">
+            <label class="control-label" for="ai-level">AI style</label>
+
+            <div class="select-wrap">
+              <select id="ai-level">
+                <option value="easy">Easy</option>
+                <option value="smart" selected>Smart</option>
+                <option value="expert">Expert</option>
+              </select>
+            </div>
+          </div>
+
+          <div class="rule"></div>
+
+          <div>
+            <label class="control-label">Scoreboard</label>
+
+            <div class="scoreboard">
+              <div class="score">
+                <span class="score-value" id="score-x">0</span>
+                <span class="score-name" id="score-x-name">You X</span>
+              </div>
+
+              <div class="score">
+                <span class="score-value" id="score-o">0</span>
+                <span class="score-name" id="score-o-name">Bot O</span>
+              </div>
+
+              <div class="score">
+                <span class="score-value" id="score-draws">0</span>
+                <span class="score-name">Draws</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="button-row">
+            <button class="action-button primary" id="new-round" type="button">
+              New round
+            </button>
+
+            <button
+              class="action-button secondary"
+              id="reset-score"
+              type="button"
+            >
+              Reset score
+            </button>
+          </div>
+        </aside>
+
+        <section class="arena">
+          <div class="arena-header">
+            <div>
+              <p class="eyebrow" id="game-tag">Three in a row</p>
+              <h2 class="game-name" id="game-name">Tic-Tac-Toe</h2>
+              <p class="game-description" id="game-description">
+                Place three marks in a line before your opponent does.
+              </p>
+            </div>
+
+            <div class="status-box" aria-live="polite">
+              <span class="status-label">Match status</span>
+              <span class="status-text" id="status-text">Your turn</span>
+            </div>
+          </div>
+
+          <div class="game-space">
+            <div
+              class="board board-ttt"
+              id="board"
+              role="grid"
+              aria-label="Tic-Tac-Toe board"
+            ></div>
+          </div>
+
+          <div class="arena-footer">
+            <div class="turn-indicator">
+              <span class="turn-token" id="turn-token">X</span>
+              <span id="turn-label">Your move</span>
+            </div>
+
+            <p class="hint" id="game-hint">
+              Tip: control the center and create two threats.
+            </p>
+          </div>
+        </section>
+      </section>
+    </main>
+
+    <script>
+      const ROWS = 6;
+      const COLS = 7;
+
+      const gameInfo = {
+        ttt: {
+          name: "Tic-Tac-Toe",
+          tag: "Three in a row",
+          description: "Place three marks in a line before your opponent does.",
+          hint: "Tip: control the center and create two threats.",
+        },
+        connect4: {
+          name: "Connect Four",
+          tag: "Vertical strategy",
+          description:
+            "Drop pieces into the grid and connect four before the other side.",
+          hint: "Tip: build threats from the center columns.",
+        },
+      };
+
+      const state = {
+        game: "ttt",
+        mode: "ai",
+        aiLevel: "smart",
+        board: [],
+        current: "X",
+        outcome: null,
+        winningCells: [],
+        notice: "",
+        aiThinking: false,
+        round: 0,
+      };
+
+      const scores = {
+        ttt: { X: 0, O: 0, draws: 0 },
+        connect4: { X: 0, O: 0, draws: 0 },
+      };
+
+      const boardElement = document.getElementById("board");
+      const statusText = document.getElementById("status-text");
+      const turnToken = document.getElementById("turn-token");
+      const turnLabel = document.getElementById("turn-label");
+      const gameName = document.getElementById("game-name");
+      const gameTag = document.getElementById("game-tag");
+      const gameDescription = document.getElementById("game-description");
+      const gameHint = document.getElementById("game-hint");
+      const aiLevelGroup = document.getElementById("ai-level-group");
+      const aiLevelSelect = document.getElementById("ai-level");
+      const scoreX = document.getElementById("score-x");
+      const scoreO = document.getElementById("score-o");
+      const scoreDraws = document.getElementById("score-draws");
+      const scoreXName = document.getElementById("score-x-name");
+      const scoreOName = document.getElementById("score-o-name");
+
+      let aiTimer = null;
+      let noticeTimer = null;
+
+      function startRound() {
+        clearTimeout(aiTimer);
+        clearTimeout(noticeTimer);
+
+        state.board =
+          state.game === "ttt"
+            ? Array(9).fill(null)
+            : Array(ROWS * COLS).fill(null);
+
+        state.current = "X";
+        state.outcome = null;
+        state.winningCells = [];
+        state.notice = "";
+        state.aiThinking = false;
+        state.round += 1;
+
+        render();
+      }
+
+      function otherPlayer(player) {
+        return player === "X" ? "O" : "X";
+      }
+
+      function playerName(player) {
+        if (state.mode === "ai") {
+          return player === "X" ? "You" : "Bot";
+        }
+
+        return `Player ${player}`;
+      }
+
+      function isAiTurn() {
+        return state.mode === "ai" && state.current === "O";
+      }
+
+      function setNotice(message) {
+        state.notice = message;
+        render();
+
+        clearTimeout(noticeTimer);
+        noticeTimer = setTimeout(() => {
+          state.notice = "";
+          render();
+        }, 1600);
+      }
+
+      function render() {
+        const info = gameInfo[state.game];
+        const currentScore = scores[state.game];
+
+        gameName.textContent = info.name;
+        gameTag.textContent = info.tag;
+        gameDescription.textContent = info.description;
+        gameHint.textContent = info.hint;
+
+        scoreX.textContent = currentScore.X;
+        scoreO.textContent = currentScore.O;
+        scoreDraws.textContent = currentScore.draws;
+
+        scoreXName.textContent = state.mode === "ai" ? "You X" : "Player X";
+        scoreOName.textContent = state.mode === "ai" ? "Bot O" : "Player O";
+
+        aiLevelGroup.hidden = state.mode !== "ai";
+
+        document.querySelectorAll("[data-game]").forEach((button) => {
+          const active = button.dataset.game === state.game;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-pressed", active);
+        });
+
+        document.querySelectorAll("[data-mode]").forEach((button) => {
+          const active = button.dataset.mode === state.mode;
+          button.classList.toggle("active", active);
+          button.setAttribute("aria-pressed", active);
+        });
+
+        renderStatus();
+        renderBoard();
+      }
+
+      function renderStatus() {
+        let message;
+        let token = state.current;
+
+        if (state.notice) {
+          message = state.notice;
+        } else if (state.outcome?.winner) {
+          message = `${playerName(state.outcome.winner)} wins`;
+          token = state.outcome.winner;
+        } else if (state.outcome?.draw) {
+          message = "Draw game";
+          token = "-";
+        } else if (state.aiThinking) {
+          message = "Bot is thinking";
+          token = "O";
+        } else {
+          message = `${playerName(state.current)}'s turn`;
+        }
+
+        statusText.textContent = message;
+        turnToken.textContent = token;
+
+        if (state.outcome?.winner) {
+          turnLabel.textContent = `${playerName(state.outcome.winner)} took the round`;
+        } else if (state.outcome?.draw) {
+          turnLabel.textContent = "No spaces left";
+        } else if (state.aiThinking) {
+          turnLabel.textContent = "Calculating a response";
+        } else {
+          turnLabel.textContent =
+            state.mode === "ai" && state.current === "X"
+              ? "Your move"
+              : `${playerName(state.current)} to move`;
+        }
+      }
+
+      function renderBoard() {
+        boardElement.innerHTML = "";
+        boardElement.className =
+          state.game === "ttt" ? "board board-ttt" : "board board-connect4";
+
+        boardElement.setAttribute(
+          "aria-label",
+          state.game === "ttt" ? "Tic-Tac-Toe board" : "Connect Four board",
+        );
+
+        if (state.game === "ttt") {
+          renderTicTacToeBoard();
+        } else {
+          renderConnectFourBoard();
+        }
+      }
+
+      function renderTicTacToeBoard() {
+        state.board.forEach((value, index) => {
+          const cell = document.createElement("button");
+          const row = Math.floor(index / 3) + 1;
+          const column = (index % 3) + 1;
+
+          cell.type = "button";
+          cell.className = "cell ttt-cell";
+          cell.dataset.index = index;
+          cell.setAttribute("role", "gridcell");
+          cell.setAttribute(
+            "aria-label",
+            value
+              ? `Row ${row}, column ${column}, ${value}`
+              : `Row ${row}, column ${column}, empty`,
+          );
+
+          if (value) {
+            cell.textContent = value;
+            cell.classList.add(`piece-${value.toLowerCase()}`);
+          }
+
+          if (state.winningCells.includes(index)) {
+            cell.classList.add("winning");
+          }
+
+          cell.disabled =
+            Boolean(value) ||
+            Boolean(state.outcome) ||
+            state.aiThinking ||
+            isAiTurn();
+
+          boardElement.appendChild(cell);
+        });
+      }
+
+      function renderConnectFourBoard() {
+        for (let row = 0; row < ROWS; row += 1) {
+          for (let column = 0; column < COLS; column += 1) {
+            const index = row * COLS + column;
+            const value = state.board[index];
+            const cell = document.createElement("button");
+
+            cell.type = "button";
+            cell.className = "cell c4-cell";
+            cell.dataset.column = column;
+            cell.setAttribute("role", "gridcell");
+            cell.setAttribute(
+              "aria-label",
+              value
+                ? `Column ${column + 1}, ${value}`
+                : `Drop piece in column ${column + 1}`,
+            );
+
+            if (value) {
+              cell.textContent = value;
+              cell.classList.add(`piece-${value.toLowerCase()}`);
+            }
+
+            if (state.winningCells.includes(index)) {
+              cell.classList.add("winning");
+            }
+
+            cell.disabled =
+              Boolean(state.outcome) || state.aiThinking || isAiTurn();
+
+            boardElement.appendChild(cell);
+          }
+        }
+      }
+
+      function commitMove(move) {
+        if (state.game === "ttt") {
+          state.board[move] = state.current;
+        } else {
+          const placement = dropInColumn(state.board, move, state.current);
+
+          if (!placement) {
+            return false;
+          }
+
+          state.board = placement.board;
+        }
+
+        state.notice = "";
+
+        const outcome =
+          state.game === "ttt"
+            ? checkTicTacToe(state.board)
+            : checkConnectFour(state.board);
+
+        if (outcome) {
+          state.outcome = outcome;
+          state.winningCells = outcome.cells || [];
+
+          if (outcome.winner) {
+            scores[state.game][outcome.winner] += 1;
+          } else if (outcome.draw) {
+            scores[state.game].draws += 1;
+          }
+
+          render();
+          return true;
+        }
+
+        state.current = otherPlayer(state.current);
+        render();
+
+        if (isAiTurn()) {
+          queueAiTurn();
+        }
+
+        return true;
+      }
+
+      function handleBoardClick(event) {
+        const cell = event.target.closest("button");
+
+        if (!cell || state.outcome || state.aiThinking || isAiTurn()) {
+          return;
+        }
+
+        if (state.game === "ttt") {
+          const index = Number(cell.dataset.index);
+
+          if (state.board[index]) {
+            return;
+          }
+
+          commitMove(index);
+          return;
+        }
+
+        const column = Number(cell.dataset.column);
+
+        if (!dropInColumn(state.board, column, state.current)) {
+          setNotice("That column is full");
+          return;
+        }
+
+        commitMove(column);
+      }
+
+      function queueAiTurn() {
+        const round = state.round;
+
+        state.aiThinking = true;
+        render();
+
+        aiTimer = setTimeout(() => {
+          if (round !== state.round || state.outcome || !isAiTurn()) {
+            return;
+          }
+
+          const move =
+            state.game === "ttt"
+              ? chooseTicTacToeMove(state.board)
+              : chooseConnectFourMove(state.board);
+
+          state.aiThinking = false;
+
+          if (move !== null && move !== undefined) {
+            commitMove(move);
+          } else {
+            render();
+          }
+        }, 420);
+      }
+
+      function checkTicTacToe(board) {
+        const winningLines = [
+          [0, 1, 2],
+          [3, 4, 5],
+          [6, 7, 8],
+          [0, 3, 6],
+          [1, 4, 7],
+          [2, 5, 8],
+          [0, 4, 8],
+          [2, 4, 6],
+        ];
+
+        for (const line of winningLines) {
+          const [a, b, c] = line;
+
+          if (board[a] && board[a] === board[b] && board[a] === board[c]) {
+            return {
+              winner: board[a],
+              cells: line,
+            };
+          }
+        }
+
+        if (board.every(Boolean)) {
+          return { draw: true, cells: [] };
+        }
+
+        return null;
+      }
+
+      function chooseTicTacToeMove(board) {
+        const available = getAvailableMoves(board);
+
+        if (!available.length) {
+          return null;
+        }
+
+        if (state.aiLevel === "easy") {
+          return randomItem(available);
+        }
+
+        if (state.aiLevel === "expert") {
+          return choosePerfectTicTacToeMove(board);
+        }
+
+        const winningMove = findTacticalTicTacToeMove(board, "O");
+
+        if (winningMove !== null) {
+          return winningMove;
+        }
+
+        const blockingMove = findTacticalTicTacToeMove(board, "X");
+
+        if (blockingMove !== null) {
+          return blockingMove;
+        }
+
+        if (board[4] === null) {
+          return 4;
+        }
+
+        const corners = [0, 2, 6, 8].filter((index) => board[index] === null);
+
+        if (corners.length) {
+          return randomItem(corners);
+        }
+
+        return randomItem(available);
+      }
+
+      function choosePerfectTicTacToeMove(board) {
+        let bestScore = -Infinity;
+        let bestMoves = [];
+
+        for (const move of getAvailableMoves(board)) {
+          board[move] = "O";
+          const score = minimaxTicTacToe(board, 0, false);
+          board[move] = null;
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestMoves = [move];
+          } else if (score === bestScore) {
+            bestMoves.push(move);
+          }
+        }
+
+        return randomItem(bestMoves);
+      }
+
+      function minimaxTicTacToe(board, depth, maximizing) {
+        const result = checkTicTacToe(board);
+
+        if (result?.winner === "O") {
+          return 10 - depth;
+        }
+
+        if (result?.winner === "X") {
+          return depth - 10;
+        }
+
+        if (result?.draw) {
+          return 0;
+        }
+
+        if (maximizing) {
+          let bestScore = -Infinity;
+
+          for (const move of getAvailableMoves(board)) {
+            board[move] = "O";
+            bestScore = Math.max(
+              bestScore,
+              minimaxTicTacToe(board, depth + 1, false),
+            );
+            board[move] = null;
+          }
+
+          return bestScore;
+        }
+
+        let bestScore = Infinity;
+
+        for (const move of getAvailableMoves(board)) {
+          board[move] = "X";
+          bestScore = Math.min(
+            bestScore,
+            minimaxTicTacToe(board, depth + 1, true),
+          );
+          board[move] = null;
+        }
+
+        return bestScore;
+      }
+
+      function findTacticalTicTacToeMove(board, player) {
+        for (const move of getAvailableMoves(board)) {
+          board[move] = player;
+          const result = checkTicTacToe(board);
+          board[move] = null;
+
+          if (result?.winner === player) {
+            return move;
+          }
+        }
+
+        return null;
+      }
+
+      function getAvailableMoves(board) {
+        const moves = [];
+
+        board.forEach((value, index) => {
+          if (!value) {
+            moves.push(index);
+          }
+        });
+
+        return moves;
+      }
+
+      function checkConnectFour(board) {
+        const directions = [
+          [0, 1],
+          [1, 0],
+          [1, 1],
+          [1, -1],
+        ];
+
+        function inside(row, column) {
+          return row >= 0 && row < ROWS && column >= 0 && column < COLS;
+        }
+
+        for (let row = 0; row < ROWS; row += 1) {
+          for (let column = 0; column < COLS; column += 1) {
+            const player = board[row * COLS + column];
+
+            if (!player) {
+              continue;
+            }
+
+            for (const [rowDirection, columnDirection] of directions) {
+              const previousRow = row - rowDirection;
+              const previousColumn = column - columnDirection;
+
+              if (
+                inside(previousRow, previousColumn) &&
+                board[previousRow * COLS + previousColumn] === player
+              ) {
+                continue;
+              }
+
+              const cells = [];
+              let currentRow = row;
+              let currentColumn = column;
+
+              while (
+                inside(currentRow, currentColumn) &&
+                board[currentRow * COLS + currentColumn] === player
+              ) {
+                cells.push(currentRow * COLS + currentColumn);
+                currentRow += rowDirection;
+                currentColumn += columnDirection;
+              }
+
+              if (cells.length >= 4) {
+                return {
+                  winner: player,
+                  cells,
+                };
+              }
+            }
+          }
+        }
+
+        if (board.every(Boolean)) {
+          return { draw: true, cells: [] };
+        }
+
+        return null;
+      }
+
+      function dropInColumn(board, column, player) {
+        if (column < 0 || column >= COLS) {
+          return null;
+        }
+
+        for (let row = ROWS - 1; row >= 0; row -= 1) {
+          const index = row * COLS + column;
+
+          if (!board[index]) {
+            const nextBoard = board.slice();
+            nextBoard[index] = player;
+
+            return {
+              board: nextBoard,
+              index,
+            };
+          }
+        }
+
+        return null;
+      }
+
+      function getAvailableColumns(board) {
+        const columns = [];
+
+        for (let column = 0; column < COLS; column += 1) {
+          if (!board[column]) {
+            columns.push(column);
+          }
+        }
+
+        return columns;
+      }
+
+      function chooseConnectFourMove(board) {
+        const availableColumns = getAvailableColumns(board);
+
+        if (!availableColumns.length) {
+          return null;
+        }
+
+        if (state.aiLevel === "easy") {
+          return randomItem(availableColumns);
+        }
+
+        const winningColumn = findTacticalConnectFourMove(board, "O");
+
+        if (winningColumn !== null) {
+          return winningColumn;
+        }
+
+        const blockingColumn = findTacticalConnectFourMove(board, "X");
+
+        if (blockingColumn !== null) {
+          return blockingColumn;
+        }
+
+        if (state.aiLevel === "expert") {
+          return chooseExpertConnectFourMove(board);
+        }
+
+        const weightedColumns = availableColumns.flatMap((column) => {
+          const distanceFromCenter = Math.abs(3 - column);
+          const weight = Math.max(1, 5 - distanceFromCenter * 2);
+          return Array(weight).fill(column);
+        });
+
+        return randomItem(weightedColumns);
+      }
+
+      function findTacticalConnectFourMove(board, player) {
+        for (const column of getAvailableColumns(board)) {
+          const simulated = dropInColumn(board, column, player);
+
+          if (!simulated) {
+            continue;
+          }
+
+          const result = checkConnectFour(simulated.board);
+
+          if (result?.winner === player) {
+            return column;
+          }
+        }
+
+        return null;
+      }
+
+      function chooseExpertConnectFourMove(board) {
+        const columns = orderColumns(getAvailableColumns(board));
+        const depth = 4;
+        let bestScore = -Infinity;
+        let bestColumns = [];
+
+        for (const column of columns) {
+          const simulated = dropInColumn(board, column, "O");
+
+          if (!simulated) {
+            continue;
+          }
+
+          const score = connectFourSearch(
+            simulated.board,
+            depth - 1,
+            -Infinity,
+            Infinity,
+            "X",
+          );
+
+          if (score > bestScore) {
+            bestScore = score;
+            bestColumns = [column];
+          } else if (score === bestScore) {
+            bestColumns.push(column);
+          }
+        }
+
+        return randomItem(bestColumns.length ? bestColumns : columns);
+      }
+
+      function connectFourSearch(board, depth, alpha, beta, player) {
+        const result = checkConnectFour(board);
+
+        if (result?.winner === "O") {
+          return 100000 + depth;
+        }
+
+        if (result?.winner === "X") {
+          return -100000 - depth;
+        }
+
+        if (result?.draw) {
+          return 0;
+        }
+
+        if (depth === 0) {
+          return evaluateConnectFourPosition(board);
+        }
+
+        const columns = orderColumns(getAvailableColumns(board));
+
+        if (player === "O") {
+          let bestScore = -Infinity;
+
+          for (const column of columns) {
+            const simulated = dropInColumn(board, column, "O");
+            const score = connectFourSearch(
+              simulated.board,
+              depth - 1,
+              alpha,
+              beta,
+              "X",
+            );
+
+            bestScore = Math.max(bestScore, score);
+            alpha = Math.max(alpha, bestScore);
+
+            if (beta <= alpha) {
+              break;
+            }
+          }
+
+          return bestScore;
+        }
+
+        let bestScore = Infinity;
+
+        for (const column of columns) {
+          const simulated = dropInColumn(board, column, "X");
+          const score = connectFourSearch(
+            simulated.board,
+            depth - 1,
+            alpha,
+            beta,
+            "O",
+          );
+
+          bestScore = Math.min(bestScore, score);
+          beta = Math.min(beta, bestScore);
+
+          if (beta <= alpha) {
+            break;
+          }
+        }
+
+        return bestScore;
+      }
+
+      function evaluateConnectFourPosition(board) {
+        let score = 0;
+
+        for (let row = 0; row < ROWS; row += 1) {
+          const centerValue = board[row * COLS + 3];
+
+          if (centerValue === "O") {
+            score += 3;
+          } else if (centerValue === "X") {
+            score -= 3;
+          }
+        }
+
+        const directions = [
+          [0, 1],
+          [1, 0],
+          [1, 1],
+          [1, -1],
+        ];
+
+        for (let row = 0; row < ROWS; row += 1) {
+          for (let column = 0; column < COLS; column += 1) {
+            for (const [rowDirection, columnDirection] of directions) {
+              const window = [];
+
+              for (let offset = 0; offset < 4; offset += 1) {
+                const nextRow = row + rowDirection * offset;
+                const nextColumn = column + columnDirection * offset;
+
+                if (
+                  nextRow < 0 ||
+                  nextRow >= ROWS ||
+                  nextColumn < 0 ||
+                  nextColumn >= COLS
+                ) {
+                  break;
+                }
+
+                window.push(board[nextRow * COLS + nextColumn]);
+              }
+
+              if (window.length === 4) {
+                score += scoreConnectFourWindow(window);
+              }
+            }
+          }
+        }
+
+        return score;
+      }
+
+      function scoreConnectFourWindow(window) {
+        const aiCount = window.filter((value) => value === "O").length;
+        const humanCount = window.filter((value) => value === "X").length;
+        const emptyCount = window.filter((value) => !value).length;
+
+        if (aiCount > 0 && humanCount > 0) {
+          return 0;
+        }
+
+        if (aiCount === 4) {
+          return 100000;
+        }
+
+        if (humanCount === 4) {
+          return -100000;
+        }
+
+        if (aiCount === 3 && emptyCount === 1) {
+          return 100;
+        }
+
+        if (aiCount === 2 && emptyCount === 2) {
+          return 12;
+        }
+
+        if (aiCount === 1 && emptyCount === 3) {
+          return 2;
+        }
+
+        if (humanCount === 3 && emptyCount === 1) {
+          return -120;
+        }
+
+        if (humanCount === 2 && emptyCount === 2) {
+          return -14;
+        }
+
+        return 0;
+      }
+
+      function orderColumns(columns) {
+        return [...columns].sort((a, b) => Math.abs(3 - a) - Math.abs(3 - b));
+      }
+
+      function randomItem(items) {
+        return items[Math.floor(Math.random() * items.length)];
+      }
+
+      document.querySelectorAll("[data-game]").forEach((button) => {
+        button.addEventListener("click", () => {
+          if (state.game === button.dataset.game) {
+            return;
+          }
+
+          state.game = button.dataset.game;
+          startRound();
+        });
+      });
+
+      document.querySelectorAll("[data-mode]").forEach((button) => {
+        button.addEventListener("click", () => {
+          if (state.mode === button.dataset.mode) {
+            return;
+          }
+
+          state.mode = button.dataset.mode;
+          startRound();
+        });
+      });
+
+      aiLevelSelect.addEventListener("change", () => {
+        state.aiLevel = aiLevelSelect.value;
+        startRound();
+      });
+
+      document
+        .getElementById("new-round")
+        .addEventListener("click", startRound);
+
+      document.getElementById("reset-score").addEventListener("click", () => {
+        scores[state.game] = { X: 0, O: 0, draws: 0 };
+        startRound();
+      });
+
+      boardElement.addEventListener("click", handleBoardClick);
+
+      startRound();
+    </script>
+  </body>
+</html>
